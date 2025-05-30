@@ -2,6 +2,8 @@
 
 A web-based tool for creating and editing skeletal keyframe animations for 3D models in FBX format. Export your animations in a compatible JSON format or as a GLB file with embedded animation.
 
+![Keyframe Animation Tool Screenshot](app-screenshot.png)
+
 ## Features
 
 *   Load FBX models and inspect their bone structure.
