@@ -98,8 +98,8 @@ html, body, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
-  position: relative; 
-  overflow: hidden; 
+  position: relative;
+  overflow: hidden;
 }
 
 .top-toolbar {
@@ -111,8 +111,8 @@ html, body, #root {
   padding: 0 16px;
   gap: 16px;
   flex-shrink: 0;
-  position: relative; 
-  z-index: 5; 
+  position: relative;
+  z-index: 5;
 }
 
 .toolbar-group {
@@ -148,7 +148,7 @@ html, body, #root {
 }
 
 .viewport-container {
-  flex-grow: 1; 
+  flex-grow: 1;
   background: #1a1a1a;
   position: relative;
   overflow: hidden;
@@ -172,35 +172,35 @@ html, body, #root {
 
 .timeline-container {
   position: absolute;
-  left: 0.5rem; 
-  right: 0.5rem; 
-  bottom: 0.5rem; 
-  width: calc(100% - 1rem); 
+  left: 0.5rem;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  width: calc(100% - 1rem);
   background: #242424;
   border-top: 1px solid #333;
   display: flex;
   flex-direction: column;
   transition: height 0.3s ease-out;
-  z-index: 20; 
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.3); 
+  z-index: 20;
+  box-shadow: 0 -2px 10px rgba(0,0,0,0.3);
 }
 
 .timeline-container.collapsed {
-  height: 125px; 
+  height: 125px;
 }
 .timeline-container.collapsed .timeline-ruler {
-  height: 30px; 
-  flex-shrink: 0; 
+  height: 30px;
+  flex-shrink: 0;
   overflow: hidden;
 }
 
 .timeline-container.expanded {
-  height: 70vh; 
+  height: 70vh;
 }
 .timeline-container.expanded .timeline-ruler {
-  flex-grow: 1; 
-  overflow-y: auto; 
-  min-height: 50px; 
+  flex-grow: 1;
+  overflow-y: auto;
+  min-height: 50px;
 }
 
 
@@ -236,9 +236,9 @@ html, body, #root {
 }
 
 .timeline-button {
-  width: auto; 
-  min-width: 28px; 
-  height: 28px; 
+  width: auto;
+  min-width: 28px;
+  height: 28px;
   background: #444;
   border: none;
   border-radius: 4px;
@@ -253,7 +253,7 @@ html, body, #root {
 }
 
 .timeline-button svg {
-  width: 14px; 
+  width: 14px;
   height: 14px;
 }
 .timeline-button:hover {
@@ -266,15 +266,15 @@ html, body, #root {
   opacity: 0.5;
   cursor: not-allowed;
 }
-.timeline-button.play:not(:disabled):hover { 
+.timeline-button.play:not(:disabled):hover {
   background: #4a9eff;
 }
 
 
 .timeline-content {
-  flex: 1; 
-  padding: 8px 16px 8px 16px; 
-  overflow: hidden; 
+  flex: 1;
+  padding: 8px 16px 8px 16px;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -283,7 +283,7 @@ html, body, #root {
   background: #1a1a1a;
   border: 1px solid #333;
   border-radius: 4px;
-  margin-bottom: 8px; 
+  margin-bottom: 8px;
   position: relative;
 }
 
@@ -295,7 +295,7 @@ html, body, #root {
   width: 2px;
   background: #ff4444;
   pointer-events: none;
-  z-index: 10; 
+  z-index: 10;
 }
 
 .timeline-marker {
@@ -305,10 +305,10 @@ html, body, #root {
   background: #ffaa00;
   border-radius: 50%;
   cursor: pointer;
-  z-index: 20; 
+  z-index: 20;
   box-shadow: 0 0 3px rgba(0,0,0,0.5);
-  top: 50%; 
-  transform: translate(-50%, -50%); 
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .timeline-marker:hover {
@@ -317,8 +317,8 @@ html, body, #root {
 }
 
 .timeline-slider-container {
-  padding-bottom: 8px; 
-  flex-shrink: 0; 
+  padding-bottom: 8px;
+  flex-shrink: 0;
 }
 
 .timeline-slider {
@@ -365,7 +365,7 @@ html, body, #root {
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
-  box-sizing: border-box; 
+  box-sizing: border-box;
 }
 .file-input-label.disabled {
   opacity: 0.5;
@@ -378,6 +378,13 @@ html, body, #root {
   color: #e0e0e0;
   background: #262626;
 }
+.file-input-label.drag-over {
+  border-color: #66afe9 !important;
+  background-color: #2c2c2c !important;
+  color: #fff !important;
+  border-style: solid;
+}
+
 
 .loading-text {
   text-align: center;
@@ -457,7 +464,7 @@ html, body, #root {
   opacity: 0.5;
   cursor: not-allowed;
   transform: none;
-  background-color: #383838 !important; 
+  background-color: #383838 !important;
   color: #777 !important;
 }
 
@@ -714,20 +721,20 @@ input[type="number"]::-webkit-outer-spin-button {
 /* Timeline Specific Multi-Track Styles */
 .multi-track-container {
   width: 100%;
-  height: 100%; 
+  height: 100%;
   position: relative;
 }
 
 .timeline-bone-track {
   width: 100%;
-  border-bottom: 1px solid #303030; 
+  border-bottom: 1px solid #303030;
   cursor: pointer;
-  display: flex; 
-  align-items: center; 
+  display: flex;
+  align-items: center;
   box-sizing: border-box;
 }
 .timeline-bone-track.single-selected {
-    height: 100%; 
+    height: 100%;
 }
 
 
@@ -736,15 +743,15 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 .timeline-bone-track:hover {
-  background-color: #2e2e2e; 
+  background-color: #2e2e2e;
 }
 
 .timeline-bone-track.selected {
-  background-color: #303040; 
+  background-color: #303040;
 }
 
 .timeline-bone-track.selected .timeline-bone-label {
-  color: #6fa8ff; 
+  color: #6fa8ff;
   font-weight: 500;
 }
 
@@ -752,23 +759,23 @@ input[type="number"]::-webkit-outer-spin-button {
   color: #888;
   font-size: 11px;
   user-select: none;
-  flex-shrink: 0; 
-  line-height: normal; 
+  flex-shrink: 0;
+  line-height: normal;
   padding-left: 5px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   box-sizing: border-box;
   border-right: 1px solid #333;
-  height: 100%; 
-  display: flex; 
+  height: 100%;
+  display: flex;
   align-items: center;
 }
 
 .timeline-markers-area-for-bone {
-  flex-grow: 1; 
+  flex-grow: 1;
   height: 100%;
-  position: relative; 
+  position: relative;
 }
 
 .timeline-placeholder-text {
