@@ -16,7 +16,7 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState('scene');
   const [showImportModal, setShowImportModal] = useState(false);
   const [showJsonModal, setShowJsonModal] = useState(false);
-  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [showInfoModal, setShowInfoModal] = useState(true);
   const [isDraggingOverModelArea, setIsDraggingOverModelArea] = useState(false);
 
   const {

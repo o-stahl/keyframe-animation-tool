@@ -285,13 +285,75 @@ html, body, #root {
   border-radius: 4px;
   margin-bottom: 8px;
   position: relative;
+  display: flex;
 }
 
+.timeline-ruler-labels-column {
+  height: 100%;
+  background-color: #1a1a1a;
+  border-right: 1px solid #333;
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.timeline-ruler-label {
+  color: #888;
+  font-size: 11px;
+  user-select: none;
+  line-height: normal;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.multi-track-labels-list {
+  width: 100%;
+  overflow-y: hidden;
+  position: relative;
+}
+
+.multi-track-row-label {
+  color: #888;
+  font-size: 11px;
+  user-select: none;
+  padding-left: 5px;
+  padding-right: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  border-bottom: 1px solid #303030;
+}
+.multi-track-row-label:last-child {
+  border-bottom: none;
+}
+.multi-track-row-label:hover {
+  background-color: #2e2e2e;
+}
+.multi-track-row-label.selected {
+  color: #6fa8ff;
+  font-weight: 500;
+  background-color: #303040;
+}
+
+.timeline-ruler-keyframe-area {
+  flex-grow: 1;
+  position: relative;
+}
 
 .timeline-playhead {
   position: absolute;
   top: 0;
-  bottom: 0; /* Ensures full height of parent */
+  bottom: 0;
   width: 2px;
   background: #ff4444;
   pointer-events: none;
@@ -319,6 +381,7 @@ html, body, #root {
 .timeline-slider-container {
   padding-bottom: 8px;
   flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .timeline-slider {
@@ -666,16 +729,15 @@ html, body, #root {
   margin-top: 20px;
 }
 
-/* JsonModal specific styles */
-.json-controls { /* For the button container in JsonModal */
+.json-controls {
   display: flex;
   gap: 12px;
-  margin-bottom: 16px; /* Space between buttons and pre */
+  margin-bottom: 16px;
 }
 
-.json-display-modal { /* For the <pre> tag in JsonModal */
+.json-display-modal {
   width: 100%;
-  height: 350px; /* Adjusted height for better viewing */
+  height: 350px;
   background: #1a1a1a;
   border: 1px solid #333;
   color: #e0e0e0;
@@ -683,10 +745,10 @@ html, body, #root {
   border-radius: 4px;
   font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
   font-size: 12px;
-  overflow: auto; /* Important for scrollability */
-  white-space: pre; /* Ensure preformatting is respected */
-  word-wrap: normal; /* Allow horizontal scroll */
-  box-sizing: border-box; /* Ensure padding and border are within width/height */
+  overflow: auto;
+  white-space: pre;
+  word-wrap: normal;
+  box-sizing: border-box;
 }
 
 
@@ -718,7 +780,6 @@ input[type="number"]::-webkit-outer-spin-button {
   background: #555;
 }
 
-/* Timeline Specific Multi-Track Styles */
 .multi-track-container {
   width: 100%;
   height: 100%;
@@ -727,56 +788,20 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .timeline-bone-track {
   width: 100%;
-  border-bottom: 1px solid #303030;
   cursor: pointer;
-  display: flex;
-  align-items: center;
   box-sizing: border-box;
+  background-color: transparent;
+  border-bottom: 1px solid #303030;
 }
-.timeline-bone-track.single-selected {
-    height: 100%;
-}
-
 
 .timeline-bone-track:last-child {
   border-bottom: none;
 }
 
-.timeline-bone-track:hover {
-  background-color: #2e2e2e;
+.timeline-bone-track.selected-track-row {
+  background-color: #252530;
 }
 
-.timeline-bone-track.selected {
-  background-color: #303040;
-}
-
-.timeline-bone-track.selected .timeline-bone-label {
-  color: #6fa8ff;
-  font-weight: 500;
-}
-
-.timeline-bone-label {
-  color: #888;
-  font-size: 11px;
-  user-select: none;
-  flex-shrink: 0;
-  line-height: normal;
-  padding-left: 5px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  box-sizing: border-box;
-  border-right: 1px solid #333;
-  height: 100%;
-  display: flex;
-  align-items: center;
-}
-
-.timeline-markers-area-for-bone {
-  flex-grow: 1;
-  height: 100%;
-  position: relative;
-}
 
 .timeline-placeholder-text {
     padding-left: 10px;
@@ -786,8 +811,9 @@ input[type="number"]::-webkit-outer-spin-button {
     align-items: center;
     height: 100%;
     font-size: 11px;
+    width: 100%;
+    justify-content: flex-start;
 }
-
 
 @media (max-width: 1200px) {
   .left-panel {

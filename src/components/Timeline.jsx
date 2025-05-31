@@ -79,116 +79,117 @@ const Timeline = () => {
       .sort((a, b) => a.localeCompare(b));
   }, [keyFrames]);
 
-  const handleBoneTrackClick = (boneName) => {
+  const handleBoneLabelClickInMultiTrack = (boneName) => {
     if (!isPlaying && !isGizmoDraggingRef.current) {
       setSelectedBoneName(boneName);
     }
   };
 
-  const renderMultiTrackView = () => {
-    if (!isSceneReady || animationDuration <= 0 || animatedBoneNames.length === 0) return null;
+  const isLabelColumnVisible = useMemo(() => {
+    if (!isSceneReady) return false;
+    if (!isTimelineExpanded) {
+        return !!selectedBoneName;
+    } else {
+        return animatedBoneNames.length > 0;
+    }
+  }, [isSceneReady, isTimelineExpanded, selectedBoneName, animatedBoneNames]);
 
+  const keyframeAreaOffset = isLabelColumnVisible ? MULTI_TRACK_LABEL_WIDTH : 0;
+
+  const playheadJSX = (
+    <div
+        className="timeline-playhead"
+        style={{
+            left: `${animationDuration > 0 ? (currentTime / animationDuration) * 100 : 0}%`,
+        }}
+    />
+  );
+
+  const renderMultiTrackTracks = () => {
     const trackHeight = MULTI_TRACK_HEIGHT;
-    const labelWidth = MULTI_TRACK_LABEL_WIDTH;
     const rulerPadding = MULTI_TRACK_RULER_PADDING;
 
-    return (
-      <div className="multi-track-container" style={{ position: 'relative', width: '100%', height: `${animatedBoneNames.length * trackHeight}px` }}>
-        {animatedBoneNames.map((boneName, index) => {
-          const boneTrackData = keyFrames[boneName];
-          if (!boneTrackData || boneTrackData.length === 0) return null; 
+    return animatedBoneNames.map((boneName, index) => {
+      const boneTrackData = keyFrames[boneName];
+      if (!boneTrackData || boneTrackData.length === 0) return null;
 
-          return (
-            <div 
-              key={boneName} 
-              className={`timeline-bone-track ${selectedBoneName === boneName ? 'selected' : ''}`}
-              style={{ 
-                top: `${index * trackHeight + rulerPadding}px`, 
-                height: `${trackHeight}px`,
-                position: 'absolute', 
-                left: '0',
-                width: '100%',
-              }}
-              onClick={() => handleBoneTrackClick(boneName)}
-            >
-              <div 
-                className="timeline-bone-label"
-                style={{ 
-                  width: `${labelWidth}px`, 
-                }}
-              >
-                {boneName}
-              </div>
-              <div 
-                className="timeline-markers-area-for-bone"
-                style={{ 
-                  width: `calc(100% - ${labelWidth}px)`, 
-                }}
-              >
-                {boneTrackData.map(kf => {
-                  const percent = (kf.time / animationDuration) * 100;
-                  if (percent < 0 || percent > 100) return null;
-                  return (
-                    <div 
-                      key={`${boneName}-${kf.time.toString().replace('.','_')}`}
-                      className="timeline-marker"
-                      style={{ 
-                        left: `${percent}%`, 
-                      }}
-                      title={`Keyframe for ${boneName} at ${kf.time.toFixed(2)}s`}
-                      onClick={(e) => {
-                        e.stopPropagation(); 
-                        if (!isPlaying && !isGizmoDraggingRef.current) {
-                          setCurrentTime(kf.time);
-                          setSelectedBoneName(boneName); 
-                        }
-                      }}
-                    />
-                  );
-                })}
-              </div>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
-  
-  const renderSingleTrackView = () => {
-    const labelWidth = MULTI_TRACK_LABEL_WIDTH; // Consistent label width
-    const hasValidSelectedBoneTrack = selectedBoneName && keyFrames[selectedBoneName] && keyFrames[selectedBoneName].length > 0 && animationDuration > 0 && isSceneReady;
-
-    return (
-        <div 
-            className={`timeline-bone-track single-selected ${!hasValidSelectedBoneTrack ? 'placeholder' : ''}`}
+      return (
+        <div
+          key={boneName}
+          className={`timeline-bone-track ${selectedBoneName === boneName ? 'selected-track-row' : ''}`}
+          style={{
+            top: `${index * trackHeight + rulerPadding}px`,
+            height: `${trackHeight}px`,
+            position: 'absolute',
+            left: '0',
+            width: '100%',
+          }}
         >
-             <div className="timeline-bone-label" style={{ width: `${labelWidth}px`}}>
-                {selectedBoneName || "No Bone"}
-              </div>
-            <div className="timeline-markers-area-for-bone" style={{width: `calc(100% - ${labelWidth}px)`}}>
-              {hasValidSelectedBoneTrack ? (
-                keyFrames[selectedBoneName].map(kf => {
-                    const percent = (kf.time / animationDuration) * 100;
-                    if (percent < 0 || percent > 100) return null;
-                    return (
-                    <div 
-                        key={`${selectedBoneName}-${kf.time.toString().replace('.','_')}`}
-                        className="timeline-marker"
-                        style={{ left: `${percent}%`}}
-                        title={`Keyframe for ${selectedBoneName} at ${kf.time.toFixed(2)}s`}
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            if (!isPlaying && !isGizmoDraggingRef.current) setCurrentTime(kf.time);
-                        }}
-                    />
-                    );
-                })
-              ) : (
-                <span className="timeline-placeholder-text">
-                  {!isSceneReady ? "Scene not ready" : !selectedBoneName ? "Select bone" : "No keyframes"}
-                </span>
-              )}
-            </div>
+          <div
+            className="timeline-markers-area-for-bone"
+            style={{
+              width: '100%',
+              height: '100%',
+              position: 'relative'
+            }}
+          >
+            {boneTrackData.map(kf => {
+              const percent = (kf.time / animationDuration) * 100;
+              if (percent < 0 || percent > 100) return null;
+              return (
+                <div
+                  key={`${boneName}-${kf.time.toString().replace('.','_')}`}
+                  className="timeline-marker"
+                  style={{
+                    left: `${percent}%`,
+                  }}
+                  title={`Keyframe for ${boneName} at ${kf.time.toFixed(2)}s`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isPlaying && !isGizmoDraggingRef.current) {
+                      setCurrentTime(kf.time);
+                      setSelectedBoneName(boneName);
+                    }
+                  }}
+                />
+              );
+            })}
+          </div>
+        </div>
+      );
+    });
+  };
+
+
+  const renderSingleTrackView = () => {
+    const hasValidSelectedBoneTrack = selectedBoneName && keyFrames[selectedBoneName] && keyFrames[selectedBoneName].length > 0 && animationDuration > 0 && isSceneReady;
+    return (
+        <div
+            className="timeline-markers-area-for-single-bone"
+            style={{ width: '100%', height: '100%', position: 'relative' }}
+        >
+          {hasValidSelectedBoneTrack ? (
+            keyFrames[selectedBoneName].map(kf => {
+                const percent = (kf.time / animationDuration) * 100;
+                if (percent < 0 || percent > 100) return null;
+                return (
+                <div
+                    key={`${selectedBoneName}-${kf.time.toString().replace('.','_')}`}
+                    className="timeline-marker"
+                    style={{ left: `${percent}%`}}
+                    title={`Keyframe for ${selectedBoneName} at ${kf.time.toFixed(2)}s`}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isPlaying && !isGizmoDraggingRef.current) setCurrentTime(kf.time);
+                    }}
+                />
+                );
+            })
+          ) : (
+            <span className="timeline-placeholder-text">
+              {!isSceneReady ? "Scene not ready" : !selectedBoneName ? "Select bone" : "No keyframes"}
+            </span>
+          )}
         </div>
     );
   };
@@ -211,10 +212,10 @@ const Timeline = () => {
           <span className="timeline-title">Timeline</span>
           <span className="timeline-info">Frame {Math.round(currentTime * 30)} / {Math.round(animationDuration * 30)}</span>
         </div>
-        
+
         <div className="timeline-controls">
-          <button 
-            className={`timeline-button ${isPlaying ? 'pause' : 'play'}`} 
+          <button
+            className={`timeline-button ${isPlaying ? 'pause' : 'play'}`}
             onClick={handlePlayPause}
             disabled={!isSceneReady || (Object.values(keyFrames).every(track => track && track.length === 0) && bones.length === 0)}
           >
@@ -228,8 +229,8 @@ const Timeline = () => {
               </svg>
             )}
           </button>
-          <button 
-            className="timeline-button stop" 
+          <button
+            className="timeline-button stop"
             onClick={handleStop}
             disabled={!isSceneReady || !isPlaying}
           >
@@ -239,25 +240,63 @@ const Timeline = () => {
           </button>
         </div>
       </div>
-      <div className="timeline-content"> 
-        <div className="timeline-ruler"> 
-          <div 
-            className="timeline-playhead" 
-            style={{
-              left: `${animationDuration > 0 ? (currentTime / animationDuration) * 100 : 0}%`,
-              zIndex: 10 
-            }}
-          ></div>
-          {isSceneReady && (isTimelineExpanded && animatedBoneNames.length > 0 ? renderMultiTrackView() : renderSingleTrackView())}
+      <div className="timeline-content">
+        <div className="timeline-ruler">
+            {isLabelColumnVisible && (
+                <div className="timeline-ruler-labels-column" style={{ width: `${MULTI_TRACK_LABEL_WIDTH}px` }}>
+                    {!isTimelineExpanded && selectedBoneName && (
+                        <div className="timeline-ruler-label">{selectedBoneName}</div>
+                    )}
+                    {isTimelineExpanded && animatedBoneNames.length > 0 && (
+                        <div className="multi-track-labels-list">
+                            {animatedBoneNames.map((name) => (
+                                <div
+                                    key={name}
+                                    className={`multi-track-row-label ${selectedBoneName === name ? 'selected' : ''}`}
+                                    style={{ height: `${MULTI_TRACK_HEIGHT}px` }}
+                                    onClick={() => handleBoneLabelClickInMultiTrack(name)}
+                                >
+                                    {name}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            )}
+
+            <div
+                className="timeline-ruler-keyframe-area"
+                style={{
+                    position: 'absolute',
+                    left: `${keyframeAreaOffset}px`,
+                    right: '0px',
+                    top: '0px',
+                    bottom: '0px',
+                }}
+            >
+                {isSceneReady && isTimelineExpanded && animatedBoneNames.length > 0 ? (
+                     <div className="multi-track-container" style={{ position: 'relative', width: '100%', height: `${animatedBoneNames.length * MULTI_TRACK_HEIGHT}px` }}>
+                        {playheadJSX}
+                        {renderMultiTrackTracks()}
+                    </div>
+                ) : isSceneReady ? (
+                    <>
+                        {playheadJSX}
+                        {renderSingleTrackView()}
+                    </>
+                ) : (
+                    <span className="timeline-placeholder-text">Scene not ready</span>
+                )}
+            </div>
         </div>
-        
+
         <div className="timeline-slider-container">
-          <input 
-            type="range" 
-            className="timeline-slider" 
-            min="0" 
-            max={animationDuration} 
-            step="0.01" 
+          <input
+            type="range"
+            className="timeline-slider"
+            min="0"
+            max={animationDuration}
+            step="0.01"
             value={currentTime}
             onChange={(e) => handleCurrentTimeChange(e.target.value)}
             disabled={!isSceneReady || isPlaying || animationDuration <= 0}
