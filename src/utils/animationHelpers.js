@@ -168,7 +168,6 @@ export const parseImportedTracks = (tracks, bones, sceneManager) => {
   tracks.forEach(track => {
     const boneNameMatch = track.name.match(/^([a-zA-Z0-9_:]+)\.(quaternion|position)$/);
     if (!boneNameMatch) {
-      // console.warn(`Skipping track (invalid name): ${track.name}`);
       return;
     }
     
@@ -241,7 +240,7 @@ export function parseAnimationClipToKATKeyframes(animationClip, availableBonesIn
   tracks.forEach(track => {
     const trackNameParts = track.name.match(/^(.+?)\.(position|quaternion|scale)$/);
     if (!trackNameParts) {
-      return; // Silently skip tracks with unrecognized naming conventions
+      return;
     }
 
     const boneName = trackNameParts[1];
@@ -252,11 +251,11 @@ export function parseAnimationClipToKATKeyframes(animationClip, availableBonesIn
       if (!skippedBones.includes(boneName)) {
         skippedBones.push(boneName);
       }
-      return; // Bone not found in current model
+      return;
     }
 
     if (property === 'scale') {
-        return; // Scale tracks are not currently supported by this tool
+        return;
     }
 
     if (!tempKeyframesStore[boneName]) {
@@ -270,7 +269,7 @@ export function parseAnimationClipToKATKeyframes(animationClip, availableBonesIn
     if (property === 'position') valueSize = 3;
     else if (property === 'quaternion') valueSize = 4;
     else {
-        return; // Should be caught by scale check, but good fallback
+        return;
     }
 
     const timesIsArrayOrTypedArray = Array.isArray(times) || (typeof times?.length === 'number' && times?.buffer instanceof ArrayBuffer);
@@ -337,3 +336,19 @@ export function parseAnimationClipToKATKeyframes(animationClip, availableBonesIn
     skippedBones
   };
 }
+
+export const getQuaternionAngleDifference = (q1, q2) => {
+  const tq1 = new THREE.Quaternion(
+    (typeof q1?.x === 'number' && !isNaN(q1.x)) ? q1.x : 0,
+    (typeof q1?.y === 'number' && !isNaN(q1.y)) ? q1.y : 0,
+    (typeof q1?.z === 'number' && !isNaN(q1.z)) ? q1.z : 0,
+    (typeof q1?.w === 'number' && !isNaN(q1.w)) ? q1.w : 1
+  );
+  const tq2 = new THREE.Quaternion(
+    (typeof q2?.x === 'number' && !isNaN(q2.x)) ? q2.x : 0,
+    (typeof q2?.y === 'number' && !isNaN(q2.y)) ? q2.y : 0,
+    (typeof q2?.z === 'number' && !isNaN(q2.z)) ? q2.z : 0,
+    (typeof q2?.w === 'number' && !isNaN(q2.w)) ? q2.w : 1
+  );
+  return tq1.angleTo(tq2);
+};

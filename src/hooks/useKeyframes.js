@@ -5,7 +5,8 @@ import {
   validatePosition, 
   findKeyframeAtTime,
   insertOrUpdateKeyframe,
-  removeKeyframeAtTime 
+  removeKeyframeAtTime,
+  getQuaternionAngleDifference
 } from '../utils/animationHelpers';
 
 export const useKeyframes = () => {
@@ -18,7 +19,8 @@ export const useKeyframes = () => {
     keyFrames,
     setKeyFrames,
     sceneManagerRef,
-    livePose 
+    livePose,
+    bones
   } = useAnimation();
 
   const hasKeyframeAtCurrentTime = useMemo(() => {
@@ -41,30 +43,71 @@ export const useKeyframes = () => {
     if (!selectedBoneName || !isSceneReady || isPlaying || !sceneManagerRef.current) return false;
 
     const time = parseFloat(currentTime.toFixed(4));
-    const rotation = eulerToQuaternion(boneRotationUI);
-    
-    let position;
-    const bone = sceneManagerRef.current.getBoneByName(selectedBoneName);
-    if (bone && bone.userData.initialLocalPosition) {
-        position = {
-            x: bone.userData.initialLocalPosition.x,
-            y: bone.userData.initialLocalPosition.y,
-            z: bone.userData.initialLocalPosition.z,
-        };
-    } else if (livePose[selectedBoneName] && livePose[selectedBoneName].position) {
-        position = { ...livePose[selectedBoneName].position };
-    } else {
-        position = { x: 0, y: 0, z: 0 };
-    }
-    position = validatePosition(position);
+    const rotationThreshold = 0.001; // Radians, approx 0.05 degrees.
 
+    setKeyFrames(prevKeyFrames => {
+      const newKeyFramesData = { ...prevKeyFrames };
 
-    const newKeyframe = { time, position, rotation };
+      const selectedBoneRotation = eulerToQuaternion(boneRotationUI);
+      let selectedBonePosition;
+      const selectedBoneSceneObject = sceneManagerRef.current.getBoneByName(selectedBoneName);
 
-    setKeyFrames(prev => {
-      const track = prev[selectedBoneName] || [];
-      const updatedTrack = insertOrUpdateKeyframe(track, newKeyframe);
-      return { ...prev, [selectedBoneName]: updatedTrack };
+      if (livePose[selectedBoneName] && livePose[selectedBoneName].position) {
+          selectedBonePosition = { ...livePose[selectedBoneName].position };
+      } else if (selectedBoneSceneObject && selectedBoneSceneObject.userData.initialLocalPosition) {
+          selectedBonePosition = { ...selectedBoneSceneObject.userData.initialLocalPosition };
+      } else {
+          selectedBonePosition = { x: 0, y: 0, z: 0 };
+      }
+      selectedBonePosition = validatePosition(selectedBonePosition);
+
+      const selectedBoneKeyframe = { time, position: selectedBonePosition, rotation: selectedBoneRotation };
+      const selectedBoneTrack = newKeyFramesData[selectedBoneName] || [];
+      newKeyFramesData[selectedBoneName] = insertOrUpdateKeyframe(selectedBoneTrack, selectedBoneKeyframe);
+
+      bones.forEach(boneInfo => {
+        const otherBoneName = boneInfo.name;
+        if (otherBoneName === selectedBoneName) return;
+
+        const currentOtherBoneLiveTransform = livePose[otherBoneName];
+        if (!currentOtherBoneLiveTransform || !currentOtherBoneLiveTransform.quaternion) {
+            return;
+        }
+        
+        const interpolatedPose = sceneManagerRef.current.interpolatePoseAtTimeForBone(
+          otherBoneName,
+          prevKeyFrames,
+          time
+        );
+
+        const angleDifference = getQuaternionAngleDifference(
+            currentOtherBoneLiveTransform.quaternion,
+            interpolatedPose.quaternion
+        );
+        
+        if (angleDifference > rotationThreshold) {
+          let otherBonePositionToKey;
+          const otherBoneSceneObject = sceneManagerRef.current.getBoneByName(otherBoneName);
+          
+          if (currentOtherBoneLiveTransform.position) {
+              otherBonePositionToKey = { ...currentOtherBoneLiveTransform.position };
+          } else if (otherBoneSceneObject && otherBoneSceneObject.userData.initialLocalPosition) {
+              otherBonePositionToKey = { ...otherBoneSceneObject.userData.initialLocalPosition };
+          } else {
+              otherBonePositionToKey = { x: 0, y: 0, z: 0 };
+          }
+          otherBonePositionToKey = validatePosition(otherBonePositionToKey);
+
+          const otherBoneKeyframe = {
+            time,
+            position: otherBonePositionToKey, 
+            rotation: { ...currentOtherBoneLiveTransform.quaternion }
+          };
+          const otherBoneTrack = newKeyFramesData[otherBoneName] || [];
+          newKeyFramesData[otherBoneName] = insertOrUpdateKeyframe(otherBoneTrack, otherBoneKeyframe);
+        }
+      });
+      return newKeyFramesData;
     });
 
     return true;
@@ -76,7 +119,8 @@ export const useKeyframes = () => {
     boneRotationUI, 
     setKeyFrames, 
     sceneManagerRef,
-    livePose
+    livePose,
+    bones
   ]);
 
   const deleteKeyframeAtCurrentTime = useCallback(() => {

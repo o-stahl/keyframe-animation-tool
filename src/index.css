@@ -195,7 +195,8 @@ html, body, #root {
 }
 
 .timeline-container.expanded {
-  height: 70vh;
+  height: fit-content;
+  max-height: 70vh;
 }
 .timeline-container.expanded .timeline-ruler {
   flex-grow: 1;
